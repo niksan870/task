@@ -15,7 +15,7 @@ contract Wallet {
 
     mapping(address => Client) internal clients;
     mapping(address => bool) internal insertedClients;
-    mapping(address => uint) internal clientsBalance;
+    mapping(address => uint256) internal clientsBalance;
     address[] internal clientsIterable;
 
     event PurchaseEvent(string);
