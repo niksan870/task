@@ -21,13 +21,14 @@ Useful commands:
 
 ```shell
 npx hardhat test
-GAS_REPORT=true 
-npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
 
 Gas Report:
+
+In order to activate it you must set an environmental variable ```GAS_REPORT=true ``` and report will appear at the end of each test
+
 
 ![image](https://user-images.githubusercontent.com/30548703/185395987-848ace9a-9252-40e5-beeb-0eb235bb67fd.png)
 
