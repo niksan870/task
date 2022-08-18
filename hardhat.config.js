@@ -5,6 +5,8 @@ require("hardhat-gas-reporter");
 module.exports = {
   solidity: "0.8.9",
   gasReporter: {
-    enabled: (process.env.GAS_REPORT) ? true : false
+    currency: 'USD',
+    enabled: (process.env.GAS_REPORT) ? true : false,
+    coinmarketcap: process.env.coinMarketCap_API,
   }
 };
