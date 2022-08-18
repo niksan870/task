@@ -1,13 +1,33 @@
-# Sample Hardhat Project
+# TechnoLime Store
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+Requirements:
+- The administrator (owner) of the store should be able to add new products and the quantity of them.
+- The administrator should not be able to add the same product twice, just quantity.
+- Buyers (clients) should be able to see the available products and buy them by their id.
+- Buyers should be able to return products if they are not satisfied (within a certain period in blocktime: 100 blocks).
+- A client cannot buy the same product more than one time.
+- The clients should not be able to buy a product more times than the quantity in the store unless a product is returned or added by the administrator (owner)
+- Everyone should be able to see the addresses of all clients that have ever bought a given product.
 
-Try running some of the following tasks:
+
+Intro:
+- I used dedicated files for each contract. 
+- Since the contracts were small I didn't see the point of using interfaces. 
+- Kept each contract logically separate so it's more modular and reduced data coupling as much as possible.
+- Performance wise I sticked to the best practices I learned from the playlist in section 3.
+- At the end I ran a gas report with nice overiview of it's overall gas efficiency.
+
+Useful commands:
 
 ```shell
-npx hardhat help
 npx hardhat test
-GAS_REPORT=true npx hardhat test
+GAS_REPORT=true 
+npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
+
+Gas Report:
+
+![image](https://user-images.githubusercontent.com/30548703/185395987-848ace9a-9252-40e5-beeb-0eb235bb67fd.png)
+
