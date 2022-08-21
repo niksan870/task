@@ -42,7 +42,7 @@ contract Store is Wallet, Product {
         products[_prodName].quantity -= _quantity;
         emit Events.SellProduct(_prodName, _quantity);
 
-        orders[msg.sender][_prodName] = Order(_prodName, block.number, msg.value, _quantity);
+        orders[msg.sender][_prodName] = Order(block.number, msg.value, _quantity);
         emit Events.MakeOrder(msg.sender, _prodName, msg.value, _quantity);        
         
         clientsBalance[msg.sender] += msg.value;

@@ -3,7 +3,6 @@ pragma solidity ^0.8.9;
 
 contract Wallet {
     struct Order {
-        string productName;
         uint blockNumber;
         uint amount;
         uint16 quantity;

@@ -6,7 +6,6 @@ import "./utils.sol";
 
 contract Product is Owner {
     struct Item {
-        string name;
         uint16 quantity;
         uint16 price;
     }
@@ -28,8 +27,8 @@ contract Product is Owner {
     }
 
     function addProduct(string calldata _name, uint16 _quantity, uint16 _price) external isOwner addProductModifier(_name, _quantity, _price) {
-        if (bytes(products[_name].name).length == 0) {
-            products[_name] = Item(_name, _quantity, _price);
+        if (products[_name].quantity == 0) {
+            products[_name] = Item(_quantity, _price);
             productsIterable.push(_name);
 
             emit Events.CreateProduct(msg.sender, _name, _quantity, _price);
