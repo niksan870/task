@@ -3,7 +3,7 @@ pragma solidity ^0.8.9;
 
 library Errors {
     error DubplicateProduct();
-    error PriceDosntEqualRequiredAmount();
+    error PriceDoesntEqualRequiredAmount();
     error NotOwner();
     error NegativeQuantity();
     error EmptyName();
@@ -14,11 +14,16 @@ library Errors {
 }
 
 
-library Constants {
-    string constant CREATE = "CREATE";
-    string constant UPDATE = "UPDATE";
-    string constant BUY = "BUY";
-    string constant DELETE = "DELETE";
+library Events {
+    event MakeOrder(address indexed, string, uint, uint, uint16);
+    event DiscardOrder(address, string, uint, uint, uint);
 
+    event SellProduct(string, uint16);
+    event ReturnProduct(string, uint16);
+    event CreateProduct(address indexed, string, uint, uint16);
+    event IncreaseProductQuantity(address indexed, string, uint);
+}
+
+library Constants {
     uint constant RETURN_DURATION = 100;
 }
