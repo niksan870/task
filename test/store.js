@@ -99,6 +99,7 @@ describe('Store', () => {
       await expect(clientConn.buyProduct(productName, 1, transaction('0.000000000000000001')))
       .to.emit(events.attach(clientConn.address), 'SellProduct').withArgs(productName, 1)
       .to.emit(events.attach(clientConn.address), 'MakeOrder').withArgs(client.address, productName, 1, 1);
+      await clientConn.returnProduct(productName);
 
       expect(await clientConn.getClientsHaveEverBougthAProduct(productName))
       .to.deep.equal([owner.address, client.address]);
