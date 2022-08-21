@@ -15,8 +15,8 @@ library Errors {
 
 
 library Events {
-    event MakeOrder(address indexed, string, uint, uint, uint16);
-    event DiscardOrder(address, string, uint, uint, uint);
+    event MakeOrder(address indexed, string, uint, uint16);
+    event DiscardOrder(address, string, uint, uint);
 
     event SellProduct(string, uint16);
     event ReturnProduct(string, uint16);

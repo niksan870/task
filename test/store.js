@@ -5,14 +5,16 @@ const { transaction, mineNBlocks } = require('./utils');
 
 
 describe('Store', () => {
-  let storeContract, ownerConn, owner, client, clientConn, secondClient, secondClientConn;
+  let ownerConn, owner, client, clientConn, secondClient, secondClientConn;
 
   before(async () => {
-    storeContract = await ethers.getContractFactory('Store');
+    const storeContract = await ethers.getContractFactory('Store');
     ownerConn = await storeContract.deploy();
     [owner,, client, secondClient] = await ethers.getSigners();
     clientConn = ownerConn.connect(client);
     secondClientConn = ownerConn.connect(secondClient);
+    const EventContract = await ethers.getContractFactory("Events");
+    events = await EventContract.deploy();
   })
 
   describe('buyProduct', async () => {
@@ -30,32 +32,37 @@ describe('Store', () => {
       .to.be.revertedWithCustomError(clientConn, "DubplicateProduct");
     });
 
-    it('Should buy product', async () => {
-      let clientsBeforeFirstPurchase = await ownerConn.clientsHaveBoughtProducts();
-      await ownerConn.addProduct('melon', 1000, 1);
+    it('Should buy products', async () => {
+      const productName = 'melon';
+      let clientsBeforeFirstPurchase = await ownerConn.getClientsHaveEverBougthAProduct(productName);
+      await ownerConn.addProduct(productName, 1000, 1);
 
-      await expect(ownerConn.buyProduct('melon', 1, transaction('0.000000000000000001')))
-      .to.emit(ownerConn, 'ProductEvent').withArgs('UPDATE')
-      .to.emit(ownerConn, 'PurchaseEvent').withArgs('CREATE');
+      await expect(ownerConn.buyProduct(productName, 1, transaction('0.000000000000000001')))
+      .to.emit(events.attach(ownerConn.address), 'SellProduct').withArgs(productName, 1)
+      .to.emit(events.attach(ownerConn.address), 'MakeOrder').withArgs(owner.address, productName, 1, 1);
 
-      let clientsAfterFirstPurchase = await ownerConn.clientsHaveBoughtProducts();
+      let clientsAfterFirstPurchase = await ownerConn.getClientsHaveEverBougthAProduct(productName);
       expect(clientsBeforeFirstPurchase.length).to.be.below(clientsAfterFirstPurchase.length);
     });
   });
 
   describe('returnProduct', async () => {
     it("Should return product", async () => {
-      await ownerConn.addProduct('sugar', 1000, 1);
-      const balanceBeforePurchase = await secondClientConn.getClientBalance(secondClient.address);
+      const productName = 'sugar';
+      await ownerConn.addProduct(productName, 1000, 1);
+    
+      const balanceBeforePurchase = await secondClientConn.getClientBalance(client.address);
 
-      expect(secondClientConn.buyProduct('sugar', 1, transaction('0.000000000000000001')))
-      const balanceAfterPurchase = await secondClientConn.getClientBalance(secondClient.address);
+      expect(clientConn.buyProduct(productName, 1, transaction('0.000000000000000001')));
+      const balanceAfterPurchase = await clientConn.getClientBalance(client.address);
       expect(balanceAfterPurchase).to.be.above(balanceBeforePurchase);
 
-      await expect(secondClientConn.returnProduct('sugar'))
-      .to.emit(secondClientConn, 'ProductEvent').withArgs('UPDATE')
-      .to.emit(secondClientConn, 'PurchaseEvent').withArgs('DELETE');
-      const balanceAfterRefund = await secondClientConn.getClientBalance(secondClient.address);
+
+      await expect(clientConn.returnProduct(productName))
+      .to.emit(events.attach(clientConn.address), 'ReturnProduct').withArgs(productName, 1000)
+      .to.emit(events.attach(clientConn.address), 'DiscardOrder').withArgs(client.address, productName, 1, 1);
+
+      const balanceAfterRefund = await secondClientConn.getClientBalance(client.address);
       expect(balanceBeforePurchase).to.be.equal(balanceAfterRefund);
     });
     
@@ -65,13 +72,14 @@ describe('Store', () => {
     });
 
     it("Should revert block time has expired", async () => {
+      const productName = 'lime';
       const balanceBeforePurchase = await clientConn.provider.getBalance(client.address);
 
-      await ownerConn.addProduct('lime', 1000, 5);
-      await clientConn.buyProduct('lime', 1, transaction('0.000000000000000005'));
+      await ownerConn.addProduct(productName, 1000, 5);
+      await clientConn.buyProduct(productName, 1, transaction('0.000000000000000005'));
 
       await mineNBlocks(100);
-      await expect(clientConn.returnProduct('lime'))
+      await expect(clientConn.returnProduct(productName))
       .to.be.revertedWithCustomError(ownerConn, "ExpiredReturnTime");
       const balanceAfterPurchase = await clientConn.provider.getBalance(client.address);
 
@@ -79,10 +87,21 @@ describe('Store', () => {
     });
   });
 
-  describe('clientsHaveBoughtProducts', async () => {
-    it('Should get clients who have ever bought products', async () => {
-      expect(await clientConn.clientsHaveBoughtProducts())
-      .to.deep.equal([client.address, owner.address, secondClient.address]);
+  describe('getClientsHaveEverBougthAProduct', async () => {
+    it('Should get clients who have ever bought a product', async () => {
+      const productName = 'peach';
+      await ownerConn.addProduct(productName, 1000, 1);
+
+      await expect(ownerConn.buyProduct(productName, 1, transaction('0.000000000000000001')))
+      .to.emit(events.attach(ownerConn.address), 'SellProduct').withArgs(productName, 1)
+      .to.emit(events.attach(ownerConn.address), 'MakeOrder').withArgs(owner.address, productName, 1, 1);
+
+      await expect(clientConn.buyProduct(productName, 1, transaction('0.000000000000000001')))
+      .to.emit(events.attach(clientConn.address), 'SellProduct').withArgs(productName, 1)
+      .to.emit(events.attach(clientConn.address), 'MakeOrder').withArgs(client.address, productName, 1, 1);
+
+      expect(await clientConn.getClientsHaveEverBougthAProduct(productName))
+      .to.deep.equal([owner.address, client.address]);
     });
   });
 });

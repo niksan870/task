@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.9;
-import "hardhat/console.sol";
 
 import "./owner.sol";
 import "./utils.sol";
@@ -15,7 +14,6 @@ contract Product is Owner {
     mapping(string => Item) internal products;
     string[] internal productsIterable;
 
-    event ProductEvent(string);
 
     modifier addProductModifier(string calldata _name, uint16 _quantity, uint16 _price) {
         if (_quantity <= 0)
@@ -33,10 +31,12 @@ contract Product is Owner {
         if (bytes(products[_name].name).length == 0) {
             products[_name] = Item(_name, _quantity, _price);
             productsIterable.push(_name);
-            emit ProductEvent(Constants.CREATE);
+
+            emit Events.CreateProduct(msg.sender, _name, _quantity, _price);
         } else {
             products[_name].quantity += _quantity;
-            emit ProductEvent(Constants.UPDATE);
+
+            emit Events.IncreaseProductQuantity(msg.sender, _name, products[_name].quantity);
         }
     }
 

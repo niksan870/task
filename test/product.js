@@ -3,12 +3,14 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
 describe('Product', () => {
-  let productContract, ownerConn, client;
+  let productContract, ownerConn, owner, client, events;
 
   before(async () => {
     productContract = await ethers.getContractFactory('Product');
     ownerConn = await productContract.deploy();
-    [,, client, ] = await ethers.getSigners();
+    [owner,, client, ] = await ethers.getSigners();
+    const EventContract = await ethers.getContractFactory("Events");
+    events = await EventContract.deploy();
   })
 
   describe('addProduct', async () => {
@@ -38,14 +40,14 @@ describe('Product', () => {
 
     it('Should create apple', async () => {
       await expect(ownerConn.addProduct('apple', 100, 3))
-      .to.emit(ownerConn, 'ProductEvent').withArgs('CREATE');
+      .to.emit(events.attach(ownerConn.address), 'CreateProduct').withArgs(owner.address, 'apple', 100, 3)
     });
 
     it('Should increase quantity if the same product has been added twice', async () => {
       await ownerConn.addProduct('banana', 1, 4);
 
       await expect(ownerConn.addProduct('banana', 1, 4))
-      .to.emit(ownerConn, 'ProductEvent').withArgs('UPDATE');
+      .to.emit(events.attach(ownerConn.address), 'IncreaseProductQuantity').withArgs(owner.address, 'banana', 2);
     });
   });
 
