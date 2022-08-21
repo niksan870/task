@@ -29,6 +29,5 @@ Gas Report:
 
 In order to activate it you must set an environmental variable ```export GAS_REPORT=true ``` and report will appear at the end of each test
 
-
-![image](https://user-images.githubusercontent.com/30548703/185501086-78f7071e-fd60-4183-936e-0af5c77399ad.png)
+![image](https://user-images.githubusercontent.com/30548703/185807604-80aef6ac-f38b-4ed9-b5eb-9b7b47679595.png)
 
